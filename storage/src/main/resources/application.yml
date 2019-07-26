@@ -1,0 +1,182 @@
+spring:
+  application:
+    name: storage
+  profiles:
+    active: prd
+  #  cloud:
+  #    consul:
+  #      host: api.netposa.com
+  #      port: 8500
+  #      discovery:
+  #        prefer-ip-address: true
+  #        instance-id: ${spring.application.name}-${random.uuid}
+  #      config:
+  #        data-key: data
+  #        enabled: true
+  #        format: yaml
+  #    inetutils:
+  #      preferred-networks:
+  #        - 172.16
+  #  zipkin:
+  #    base-url: 'http://api.netposa.com:9411/'
+
+  mqconfig:
+    mq-enable: false
+  kafka:
+    producer:
+      #      bootstrap-servers: localhost:9092
+      bootstrap-servers: 172.16.129.34:9092
+      # 发生错误后，消息重发的次数。
+      retries: 0
+      #当有多个消息需要被发送到同一个分区时，生产者会把它们放在同一个批次里。该参数指定了一个批次可以使用的内存大小，按照字节数计算。
+      batch-size: 16384
+      # 设置生产者内存缓冲区的大小。
+      buffer-memory: 33554432
+      # acks=0 ： 生产者在成功写入消息之前不会等待任何来自服务器的响应。
+      # acks=1 ： 只要集群的首领节点收到消息，生产者就会收到一个来自服务器成功响应。
+      # acks=all ：只有当所有参与复制的节点全部收到消息时，生产者才会收到一个来自服务器的成功响应。
+      acks: 1
+    #      name: iod-human-face #自定义topic名称
+    #      face: iod-human-face #自定义topic名称
+    #      vehicle: iod-vehicle #自定义topic名称
+    #      numPartitions: 20  #自定义分区
+    #      replicationFactor: 2 #自定义副本
+    #    bootstrap-servers: NP-61-208:9092
+    #    bootstrap-servers: 172.16.129.34:9092
+    bootstrap-servers: 172.16.35.161:9092,172.16.35.162:9092,172.16.35.163:9092
+    #    bootstrap-servers: localhost:9092
+    consumer:
+      #      group-id: zt-test
+      auto-offset-reset: earliest
+      max-poll-records: 10
+      properties:
+        partition:
+          assignment:
+            strategy: \org.apache.kafka.clients.consumer.RoundRobinAssignor
+
+#  data:
+#    elasticsearch:
+##      host: es.netposa.com
+##      host: 172.16.63.105
+##      port: 9300
+##      pool: 200
+#      # 集群名
+#      cluster-name: elasticsearch
+#      # 连接节点,注意在集群中通信都是9300端口，否则会报错无法连接上！
+#      cluster-nodes: es.netposa.com:9300
+#      repositories:
+#         # 仓库中数据存储
+#        enabled: true
+##  elasticsearch:
+##    rest:
+##      uris: ["http://es.netposa.com:9200"]
+
+# db config
+mysql:
+  datasource:
+    url: jdbc:mysql://172.16.129.35:4000/test?useSSL=false&autoReconnect=true&allowMultiQueries=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+
+#通用mapper配置
+mapper:
+  mappers: tk.mybatis.mapper.common.Mapper
+  not-empty: false
+  identity: MYSQL
+
+logging:
+  file: ../logs/${spring.application.name}/${spring.application.name}.log
+  level:
+    com.netposa.dgep.mapper: warn
+    root: info
+server:
+  port: 8090
+  servlet:
+    context-path: /monitoring
+
+info:
+  server-name: ${spring.application.name}
+  instance-id: ${spring.cloud.consul.discovery.instance-id}
+  description: 数据检测服务
+  version: v1.0.0
+schedule:
+  poolsize: 10
+task:
+  threadpool:
+    core: 100
+    max-size: 200
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: 1m
+        descriptions: true
+    web:
+      server:
+        auto-time-requests: true
+  health:
+    elasticsearch:
+      enabled: false
+  endpoint:
+
+  #    health:
+  #      show-details: always
+  #      enabled: false
+  endpoints:
+    web:
+      exposure:
+        #        include: "*"
+        include: health,info,env,metrics,prometheus
+#    jmx:
+#      exposure:
+#        include: "*"
+remoteservice:
+  backend-api: http://www.yuok.top:9091/
+
+alarm:
+  isClust: false  #是否根据标签聚合，聚合会讲同样标签的数据标识为重复，并计数,默认false
+  cacheSize: 100  #缓存中存放的报警数据的最大条数,默认100
+  sendSize: 100   #批量发送报警数据的条数，默认100
+  rate: 5        #数据发送周期，单位秒，默认3s
+
+storage:
+  dist-source: #目标源
+    test:
+      enable: true
+    mysql:
+      enable: false
+    opaq:
+      enable: false
+    kafka:
+      enable: false
+      topics:
+        face: storage-face
+        body:
+        non-motor:
+        vehicle:
+    elasticsearch:
+      enable: false
+      hosts: es.netposa.com
+      #      host: 172.16.63.105System.currentTimeMillis()
+      port: 9300
+      pool: 200
+      # 集群名
+      cluster-name: elasticsearch
+      # 连接节点,注意在集群中通信都是9300端口，否则会报错无法连接上！
+  #      cluster-nodes: es.netposa.com:9300
+  #      repositories:
+  #         # 仓库中数据存储
+  #        enabled: true
+
+  access-kafka:
+    consumer-topics: #配置的时候一定要注意属性名:号后有空格，否则服务会报错
+      test: data_door_control
+      face: iod-human-face
+      body:
+      non-motor:
+      vehicle:

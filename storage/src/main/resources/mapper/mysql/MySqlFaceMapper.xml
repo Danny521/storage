@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.netposa.ips.ga1400.mapper.mysql.MysqlFaceMapper">
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert ignore into md_storage_face_data
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.recordId},
+            #{item.businessId},
+            #{item.infoKind},
+            #{item.sourceId},
+            #{item.leftTopY},
+            #{item.leftTopX},
+            #{item.rightBtmX},
+            #{item.rightBtmY},
+            #{item.absTime},
+            #{item.deviceId},
+            #{item.pushTime},
+            #{item.sourceType},
+            #{item.traitImg},
+            #{item.sceneImg},
+            #{item.confidence},
+            #{item.entryTime},
+            #{item.taskType},
+            #{item.infoSource},
+            #{item.algorithmVersion},
+            #{item.algorithmVendor},
+            #{item.eigenvector},
+            #{item.isSecondaryStructure},
+            #{item.structureTime},
+            #{item.collectionId},
+            #{item.additionalInfo},
+            #{item.source},
+            #{item.personId},---------------
+            #{item.score},
+            #{item.driverFlag},
+            #{item.vidNum},
+            #{item.isIdentify},
+            #{item.deleteFlag},
+            #{item.age},
+            #{item.location},
+            #{item.traitLocation},
+            #{item.saveTime},
+            #{item.attractive},
+            #{item.gender},
+            #{item.smile},
+            #{item.expression},-------------
+            #{item.eyeglass},
+            #{item.sunglass},
+            #{item.mask},
+            #{item.subImageList}
+            )
+        </foreach>
+    </insert>
+</mapper>
